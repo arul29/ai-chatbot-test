@@ -141,8 +141,8 @@ const Home: React.FC = () => {
         keyExtractor={item => item.id!}
         contentContainerStyle={styles.contentContainer}
         ListFooterComponent={renderLoader}
-        onContentSizeChange={scrollToBottom}
-        onLayout={scrollToBottom}
+        // onContentSizeChange={scrollToBottom}
+        // onLayout={scrollToBottom}
       />
       <TypingComponent onSend={handleSend} />
       {Platform.OS === 'ios' ? (

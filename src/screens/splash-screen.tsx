@@ -24,14 +24,14 @@ const SplashScreen: React.FC<SplashScreenProps> = ({setActiveScreen}) => {
     Animated.parallel([
       Animated.timing(scaleValue, {
         toValue: 2, // Final size of the scaled logo
-        duration: 2000, // Scale animation duration
+        duration: 1000, // Scale animation duration
         delay: 0, // Add 500ms delay for initial static display
         useNativeDriver: true,
         easing: Easing.ease,
       }),
       Animated.timing(opacityValue, {
         toValue: 0, // Fade out completely
-        duration: 2000,
+        duration: 1000,
         useNativeDriver: true,
         easing: Easing.ease,
       }),
@@ -50,7 +50,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({setActiveScreen}) => {
   return (
     <View style={styles.container}>
       <Animated.Text style={[styles.text, animatedStyle]}>
-        Project AI
+        ChatBot AI
       </Animated.Text>
     </View>
   );

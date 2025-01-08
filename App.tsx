@@ -6,9 +6,12 @@ import {Text} from 'react-native';
 const App = () => {
   const [activeScreen, setActiveScreen] = useState('Splash');
 
-  if (activeScreen === 'Splash')
+  if (activeScreen === 'Splash') {
     return <SplashScreen setActiveScreen={setActiveScreen} />;
-  else if (activeScreen === 'Home') return <Home />;
+  }
+  if (activeScreen === 'Home') {
+    return <Home />;
+  }
   return <Text>Not Found</Text>;
 };
 
