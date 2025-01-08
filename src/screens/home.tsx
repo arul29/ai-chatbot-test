@@ -130,6 +130,7 @@ const Home: React.FC = () => {
   };
 
   const statusBarHeight = getStatusBarHeight();
+  const keyboardHeight = useKeyboardHeight();
 
   return (
     <View style={[styles.container, {paddingTop: statusBarHeight}]}>
@@ -146,7 +147,7 @@ const Home: React.FC = () => {
       />
       <TypingComponent onSend={handleSend} />
       {Platform.OS === 'ios' ? (
-        <View style={{marginBottom: useKeyboardHeight()}} />
+        <View style={{marginBottom: keyboardHeight}} />
       ) : null}
     </View>
   );
