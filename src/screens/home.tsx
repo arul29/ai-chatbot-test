@@ -1,19 +1,14 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {
-  View,
-  Platform,
-  FlatList,
-  ListRenderItem,
-  StyleSheet,
-} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {View, Platform, FlatList, StyleSheet} from 'react-native';
+import {OPENAI_API_KEY} from '@env';
+import Axios from 'axios';
 import ChatBubble from '../components/chat-ai/chat-bubble';
-import {wp} from '../lib/responsive-screen';
 import TypingComponent from '../components/chat-ai/typing-component';
 import TypingIndicator from '../components/chat-ai/typing-indicator';
 import Header from '../components/header';
 import useKeyboardHeight from '../hooks/use-keyboard-height';
+import {wp} from '../lib/responsive-screen';
 import {getStatusBarHeight} from '../lib/get-statusbar';
-import {chatMessages, dummyResponses} from '../data';
 
 interface ChatMessage {
   message: string;
@@ -22,17 +17,13 @@ interface ChatMessage {
   timestamp: string;
   id?: string;
 }
+// console.log('API', OPENAI_API_KEY);
 
 // const COLOR_GRAY_LIGHTEST = '#F5F5F5';
 const COLOR_WHITE = '#FFFFFF';
 
 const Home: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    chatMessages.map((msg, index) => ({
-      ...msg,
-      id: `msg-${index}`,
-    })),
-  );
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const flatListRef = useRef<FlatList>(null);
 
@@ -55,25 +46,37 @@ const Home: React.FC = () => {
     return now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
   };
 
-  const findBestResponse = (userMessage: string): string | null => {
-    const lowercaseMessage = userMessage.toLowerCase();
+  const fetchOpenAIResponse = async (userMessage: string) => {
+    try {
+      const response = await Axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {role: 'system', content: 'You are a helpful assistant.'},
+            {role: 'user', content: userMessage},
+          ],
+          temperature: 0.7,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+          },
+        },
+      );
 
-    for (let item of dummyResponses) {
-      if (item.keywords.some(keyword => lowercaseMessage.includes(keyword))) {
-        return item.responses[
-          Math.floor(Math.random() * item.responses.length)
-        ];
-      }
+      return (
+        response.data.choices?.[0]?.message?.content ||
+        'Maaf, saya tidak mengerti.'
+      );
+    } catch (error) {
+      console.error('Error fetching OpenAI response:', error);
+      return 'Terjadi kesalahan. Silakan coba lagi.';
     }
-
-    if (lowercaseMessage.includes('?')) {
-      return 'Pertanyaan yang bagus! Bisa Anda jelaskan lebih detail?';
-    }
-
-    return null;
   };
 
-  const handleSend = (message: string) => {
+  const handleSend = async (message: string) => {
     console.log('Sending message:', message);
     const newUserMessage: ChatMessage = {
       message,
@@ -86,23 +89,20 @@ const Home: React.FC = () => {
     setMessages(newChat);
     setLoading(true);
 
-    const matchedResponse = findBestResponse(message);
+    const botMessage = await fetchOpenAIResponse(message);
 
-    setTimeout(() => {
-      const botResponse: ChatMessage = {
-        message: matchedResponse || 'Maaf, saya tidak mengerti. Bisa diulang?',
-        isUser: false,
-        timestamp: getCurrentTime(),
-        // avatar: require('./../../assets/chat-bot-3.png'),
-        id: `msg-${newChat.length}`,
-      };
+    const botResponse: ChatMessage = {
+      message: botMessage,
+      isUser: false,
+      timestamp: getCurrentTime(),
+      id: `msg-${newChat.length}`,
+    };
 
-      setMessages([...newChat, botResponse]);
-      setLoading(false);
-    }, 2000);
+    setMessages([...newChat, botResponse]);
+    setLoading(false);
   };
 
-  const renderItem: ListRenderItem<ChatMessage> = ({item, index}) => (
+  const renderItem = ({item, index}: {item: ChatMessage; index: number}) => (
     <View style={{marginBottom: index + 1 === messages.length ? wp(3) : 0}}>
       <ChatBubble
         message={item.message}
@@ -129,6 +129,18 @@ const Home: React.FC = () => {
     return null;
   };
 
+  const renderEmpty = useCallback(
+    () => (
+      <ChatBubble
+        message="Mulai percakapan dengan AI kami!"
+        isUser={false}
+        avatar={'null'} // Sesuaikan dengan avatar bot yang kamu gunakan
+        timestamp={getCurrentTime()}
+      />
+    ),
+    [],
+  );
+
   const statusBarHeight = getStatusBarHeight();
   const keyboardHeight = useKeyboardHeight();
 
@@ -142,8 +154,8 @@ const Home: React.FC = () => {
         keyExtractor={item => item.id!}
         contentContainerStyle={styles.contentContainer}
         ListFooterComponent={renderLoader}
-        // onContentSizeChange={scrollToBottom}
-        // onLayout={scrollToBottom}
+        ListEmptyComponent={renderEmpty}
+        onLayout={scrollToBottom}
       />
       <TypingComponent onSend={handleSend} />
       {Platform.OS === 'ios' ? (
