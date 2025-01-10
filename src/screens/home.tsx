@@ -53,7 +53,11 @@ const Home: React.FC = () => {
         {
           model: 'gpt-3.5-turbo',
           messages: [
-            {role: 'system', content: 'You are a helpful assistant.'},
+            {
+              role: 'system',
+              content: `Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran, kesehatan, dan informasi medis berbasis https://sejawat.co.id. 
+                Jika ada pertanyaan di luar topik ini, balas dengan: "Maaf, saya hanya dapat membantu pertanyaan terkait kedokteran dan kesehatan."`,
+            },
             {role: 'user', content: userMessage},
           ],
           temperature: 0.7,
@@ -134,7 +138,7 @@ const Home: React.FC = () => {
       <ChatBubble
         message="Mulai percakapan dengan AI kami!"
         isUser={false}
-        avatar={'null'} // Sesuaikan dengan avatar bot yang kamu gunakan
+        avatar={''}
         timestamp={getCurrentTime()}
       />
     ),
