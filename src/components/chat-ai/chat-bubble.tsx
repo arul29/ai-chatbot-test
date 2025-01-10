@@ -5,14 +5,12 @@ import {wp} from '../../lib/responsive-screen';
 interface ChatBubbleProps {
   message: ReactNode;
   isUser: boolean;
-  avatar: string;
   timestamp: string;
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({
   message,
   isUser,
-  avatar,
   timestamp,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -48,14 +46,14 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           ],
         },
       ]}>
-      {!isUser && (
+      {/* {!isUser && (
         <View style={styles.avatarContainer}>
           <Image
             source={require('./../../assets/chatgpt.png')}
             style={styles.avatar}
           />
         </View>
-      )}
+      )} */}
 
       <View style={styles.messageContainer}>
         <Text
@@ -127,16 +125,6 @@ const styles = StyleSheet.create({
     fontSize: wp(2.5),
     color: 'rgba(0,0,0,0.5)',
     marginTop: wp(1),
-  },
-  avatarContainer: {
-    marginRight: wp(2.5),
-    alignSelf: 'center',
-  },
-  avatar: {
-    width: wp(10),
-    height: wp(10),
-    // borderRadius: wp(5),
-    // tintColor: COLOR.PRIMARY,
   },
 });
 

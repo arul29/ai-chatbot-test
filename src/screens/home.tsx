@@ -13,7 +13,6 @@ import {getStatusBarHeight} from '../lib/get-statusbar';
 interface ChatMessage {
   message: string;
   isUser: boolean;
-  avatar?: any;
   timestamp: string;
   id?: string;
 }
@@ -55,12 +54,12 @@ const Home: React.FC = () => {
           messages: [
             {
               role: 'system',
-              content: `Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran, kesehatan, dan informasi medis berbasis https://sejawat.co.id. 
-                Jika ada pertanyaan di luar topik ini, balas dengan: "Maaf, saya hanya dapat membantu pertanyaan terkait kedokteran dan kesehatan."`,
+              content: `Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran dan kesehatan, maupun tentang https://sejawat.co.id`,
             },
             {role: 'user', content: userMessage},
           ],
-          temperature: 0.7,
+          temperature: 0.1,
+          max_tokens: 100,
         },
         {
           headers: {
@@ -111,7 +110,6 @@ const Home: React.FC = () => {
       <ChatBubble
         message={item.message}
         isUser={item.isUser}
-        avatar={item.avatar}
         timestamp={item.timestamp}
       />
     </View>
@@ -124,7 +122,6 @@ const Home: React.FC = () => {
           <ChatBubble
             message={<TypingIndicator />}
             isUser={false}
-            avatar={messages[0]?.avatar}
             timestamp={getCurrentTime()}
           />
         </View>
@@ -138,7 +135,6 @@ const Home: React.FC = () => {
       <ChatBubble
         message="Mulai percakapan dengan AI kami!"
         isUser={false}
-        avatar={''}
         timestamp={getCurrentTime()}
       />
     ),
