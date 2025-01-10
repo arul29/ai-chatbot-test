@@ -45,21 +45,27 @@ const Home: React.FC = () => {
     return now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
   };
 
-  const fetchOpenAIResponse = async (userMessage: string) => {
+  const fetchOpenAIResponse = async (chatHistory: ChatMessage[]) => {
     try {
+      const formattedMessages = [
+        {
+          role: 'system',
+          content:
+            'Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran dan kesehatan, maupun tentang https://sejawat.co.id',
+        },
+        ...chatHistory.map(msg => ({
+          role: msg.isUser ? 'user' : 'assistant',
+          content: msg.message,
+        })),
+      ];
+
       const response = await Axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
           model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: `Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran dan kesehatan, maupun tentang https://sejawat.co.id`,
-            },
-            {role: 'user', content: userMessage},
-          ],
+          messages: formattedMessages,
           temperature: 0.1,
-          max_tokens: 100,
+          // max_tokens: 100,
         },
         {
           headers: {
@@ -81,6 +87,7 @@ const Home: React.FC = () => {
 
   const handleSend = async (message: string) => {
     console.log('Sending message:', message);
+
     const newUserMessage: ChatMessage = {
       message,
       isUser: true,
@@ -92,7 +99,7 @@ const Home: React.FC = () => {
     setMessages(newChat);
     setLoading(true);
 
-    const botMessage = await fetchOpenAIResponse(message);
+    const botMessage = await fetchOpenAIResponse(newChat);
 
     const botResponse: ChatMessage = {
       message: botMessage,
