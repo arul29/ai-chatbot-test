@@ -9,6 +9,8 @@ import Header from '../components/header';
 import useKeyboardHeight from '../hooks/use-keyboard-height';
 import {wp} from '../lib/responsive-screen';
 import {getStatusBarHeight} from '../lib/get-statusbar';
+import {initialSystemPrompt} from '../constants/chat';
+import TextFormatter from '../components/text-formatter';
 
 interface ChatMessage {
   message: string;
@@ -50,8 +52,7 @@ const Home: React.FC = () => {
       const formattedMessages = [
         {
           role: 'system',
-          content:
-            'Anda adalah asisten medis yang hanya menjawab pertanyaan terkait kedokteran dan kesehatan, maupun tentang https://sejawat.co.id',
+          content: initialSystemPrompt,
         },
         ...chatHistory.map(msg => ({
           role: msg.isUser ? 'user' : 'assistant',
@@ -62,9 +63,9 @@ const Home: React.FC = () => {
       const response = await Axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4o-mini',
           messages: formattedMessages,
-          temperature: 0.1,
+          temperature: 0.7,
           // max_tokens: 100,
         },
         {
@@ -115,7 +116,7 @@ const Home: React.FC = () => {
   const renderItem = ({item, index}: {item: ChatMessage; index: number}) => (
     <View style={{marginBottom: index + 1 === messages.length ? wp(3) : 0}}>
       <ChatBubble
-        message={item.message}
+        message={<TextFormatter text={item.message} isUser={item.isUser} />}
         isUser={item.isUser}
         timestamp={item.timestamp}
       />
