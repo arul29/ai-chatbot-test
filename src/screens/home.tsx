@@ -11,6 +11,7 @@ import {wp} from '../lib/responsive-screen';
 import {getStatusBarHeight} from '../lib/get-statusbar';
 import {initialSystemPrompt} from '../constants/chat';
 import TextFormatter from '../components/text-formatter';
+import Markdown from '../components/markdown';
 
 interface ChatMessage {
   message: string;
@@ -116,7 +117,13 @@ const Home: React.FC = () => {
   const renderItem = ({item, index}: {item: ChatMessage; index: number}) => (
     <View style={{marginBottom: index + 1 === messages.length ? wp(3) : 0}}>
       <ChatBubble
-        message={<TextFormatter text={item.message} isUser={item.isUser} />}
+        message={
+          item.isUser ? (
+            <TextFormatter text={item.message} isUser={item.isUser} />
+          ) : (
+            <Markdown content={item.message} />
+          )
+        }
         isUser={item.isUser}
         timestamp={item.timestamp}
       />
@@ -183,7 +190,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: wp(6),
     backgroundColor: COLOR_WHITE,
-    minHeight: '100%',
+    // minHeight: '100%',
     paddingTop: wp(6),
   },
 });
